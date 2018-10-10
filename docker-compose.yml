@@ -1,0 +1,56 @@
+version: "3.1"
+services:
+    php-fpm:     
+      build: php-fpm
+      container_name: qadocs-app
+      working_dir: /var/www      
+      volumes:       
+        - ../owncloud:/var/www/owncloud
+        - ./php-fpm/php-ci:/var/www/php-ci
+        - ./mysql/sql:/var/www/sql
+        - ./storage/log:/var/log/nginx
+      #ports:
+      #  - "9000:9000"
+      environment:
+        - DB_DNS=mysql
+        - MYSQL_DATABASE=owncloud
+        - MYSQL_USER=oc_admin
+        - MYSQL_PWD=x6dsTwK+CKiIgfMCMzs30TSzgaqOwn
+        - WEB_URL=qadocs.online
+        - ES_DNS=elasticsearch
+      links:
+        - mysql      
+        - elasticsearch      
+    webserver:
+      image: nginx
+      container_name: qadocs-webserver
+      volumes:
+        - ../owncloud:/var/www/owncloud
+        - ./storage/log:/var/log/nginx
+        - ./nginx/owncloud.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "80:80"
+       - "443:443"
+      links:
+       - php-fpm
+    mysql:
+      image: mysql:8.0.3
+      container_name: qadocs-mysql      
+      volumes:
+        - ./mysql/volumes:/var/lib/mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_DATABASE=owncloud
+        - MYSQL_USER=oc_admin
+        - MYSQL_PASSWORD=x6dsTwK+CKiIgfMCMzs30TSzgaqOwn
+      ports:
+        - "4306:3306"
+      command:
+        - --innodb_use_native_aio=0  
+        - --character-set-server=utf8
+        - --collation-server=utf8_unicode_ci
+    elasticsearch:
+      build: elasticsearch
+      container_name: qadocs-elasticsearch
+      volumes:
+        - ./elasticsearch/volumes:/usr/share/elasticsearch/data
