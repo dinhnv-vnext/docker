@@ -1,5 +1,5 @@
 # erp-api
-
+docker exec -it f7165c736db5 /bin/sh
 ## You should learn about
 - [Docker](https://www.docker.com/what-docker)
 - [Owncloud](https://doc.owncloud.org/server/10.0/developer_manual/app/)
